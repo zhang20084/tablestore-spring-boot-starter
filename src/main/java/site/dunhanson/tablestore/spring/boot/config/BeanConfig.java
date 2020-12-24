@@ -6,11 +6,14 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import site.dunhanson.tablestore.spring.boot.config.properties.AliyunProperties;
+import site.dunhanson.tablestore.spring.boot.config.properties.ClientConfigurationProperties;
 import site.dunhanson.tablestore.spring.boot.config.properties.TablestoreProperties;
 import javax.annotation.Resource;
 
 @Configuration
-@EnableConfigurationProperties(value = {AliyunProperties.class, TablestoreProperties.class})
+@EnableConfigurationProperties(
+        value = {AliyunProperties.class, TablestoreProperties.class, ClientConfigurationProperties.class}
+)
 public class BeanConfig {
     @Resource
     private AliyunProperties aliyunProperties;
