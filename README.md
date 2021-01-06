@@ -1,16 +1,19 @@
 # tablestore-spring-boot-starter
 
+## 功能模块
 
+0. application.yml（开发中）
 
-## 开发计划
+1. 查询（开发中）
 
-功能模块
+   1.1 Row转java对象
 
-* 基础功能：查询、增加、删除、修改
-* application.yml配置相关
-* 代码创建表格相关
-* TableStoreTemplate
-* 配置-ClientConfiguration
+   1.2 查询SQL
+
+2. 增加
+3. 删除
+4. 修改
+5. TableStoreTemplate
 
 ## 参考资料
 
@@ -18,9 +21,9 @@
 
 [表格存储 Tablestore](https://help.aliyun.com/product/27278.html)
 
-[表格存储 Tablestore > SDK 参考 > Java SDK](https://help.aliyun.com/document_detail/43005.html)
+[Java SDK](https://help.aliyun.com/document_detail/43005.html)
 
-[表格存储 Tablestore > SDK 参考 > Java SDK > 初始化](https://help.aliyun.com/document_detail/43009.html)
+[初始化](https://help.aliyun.com/document_detail/43009.html)
 
-[表格存储 Tablestore > SDK 参考 > Java SDK > 多元索引 > 多条件组合查询](https://help.aliyun.com/document_detail/100422.html)
+[多条件组合查询](https://help.aliyun.com/document_detail/100422.html)
 
