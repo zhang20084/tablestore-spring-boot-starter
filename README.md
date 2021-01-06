@@ -17,8 +17,6 @@
 
 ## 参考资料
 
-官方资料
-
 [表格存储 Tablestore](https://help.aliyun.com/product/27278.html)
 
 [Java SDK](https://help.aliyun.com/document_detail/43005.html)
