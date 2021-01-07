@@ -16,6 +16,7 @@ import java.util.List;
  */
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class PageInfo<T> {
     /**
      * 分页

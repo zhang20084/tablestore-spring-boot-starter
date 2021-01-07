@@ -42,14 +42,14 @@ public class TablestoreTest {
         columnsToGet.setReturnAll(true);
         request.setColumnsToGet(columnsToGet);
 
-        PageInfo<Document> pageInfo = new PageInfo<>(1, 20);
-        search(request, pageInfo, Document.class);
+        PageInfo<Document> pageInfo = new PageInfo<Document>(1, 20){};
+        search(request, pageInfo);
         for(Document document : pageInfo.getRecords()) {
             System.out.println(document);
         }
     }
 
-    public <T> void search(SearchRequest request, PageInfo<T> pageInfo, Class<T> clazz) {
+    public <T> void search(SearchRequest request, PageInfo<T> pageInfo) {
         SearchQuery query = request.getSearchQuery();
         TableStoreUtils.setPageInfoInSearchQuery(query, pageInfo);
         // client
@@ -57,9 +57,26 @@ public class TablestoreTest {
         // response
         SearchResponse response = client.search(request);
         // 获取结果
-        List<T> records = TableStoreUtils.rowsToBeans(response.getRows(), clazz);
-        pageInfo.setRecords(records);
-        pageInfo.setTotal(response.getTotalCount());
+        Type type = ((ParameterizedType)pageInfo.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        Class<T> clazz = null;
+        try {
+            clazz = (Class<T>) Class.forName(type.getTypeName());
+            List<T> records = TableStoreUtils.rowsToBeans(response.getRows(), clazz);
+            pageInfo.setRecords(records);
+            pageInfo.setTotal(response.getTotalCount());
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void test() {
+        PageInfo<Document> pageInfo = new PageInfo<Document>(1, 2){};
+        // 在类的外部这样获取
+        Type type = ((ParameterizedType)pageInfo.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        System.out.println(type.getTypeName());
+        System.out.println(type.getClass());
+        System.out.println(pageInfo.getClass().getGenericSuperclass());
     }
 
 }
