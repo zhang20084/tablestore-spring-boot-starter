@@ -19,10 +19,10 @@ import java.util.Map;
 public class TableStoreUtils {
     /**
      * rows转换成beans
-     * @param rows
-     * @param clazz
-     * @param <T>
-     * @return
+     * @param rows 行对象集合
+     * @param clazz 需要转换成对象的类
+     * @param <T> 泛型
+     * @return 对象List集合
      */
     public static <T> List<T> rowsToBeans(List<Row> rows, Class<T> clazz) {
         List<T> list = new ArrayList<>();
@@ -36,28 +36,13 @@ public class TableStoreUtils {
 
     /**
      * row转换成bean
-     * @param row
-     * @param clazz
-     * @param <T>
-     * @return
+     * @param row 行对象
+     * @param clazz 需要转换的类
+     * @param <T> 泛型
+     * @return bean
      */
     public static <T> T rowToBean(Row row, Class<T> clazz) {
         return BeanUtil.mapToBean(rowToMap(row), clazz, true, CopyOptions.create());
-    }
-
-    /**
-     * rows转换成list map
-     * @param rows
-     * @return
-     */
-    public static List<Map<String, Object>> rowsToListMap(List<Row> rows) {
-        List<Map<String, Object>> list = new ArrayList<>();
-        if(rows != null) {
-            for(Row row : rows) {
-                list.add(rowToMap(row));
-            }
-        }
-        return list;
     }
 
     /**
@@ -73,23 +58,23 @@ public class TableStoreUtils {
         // 主键
         PrimaryKey primaryKey = row.getPrimaryKey();
         PrimaryKeyColumn[] primaryKeyColumns = primaryKey.getPrimaryKeyColumns();
-        for(int i = 0; i < primaryKeyColumns.length; i++) {
-            PrimaryKeyColumn column = primaryKeyColumns[i];
+        for (PrimaryKeyColumn column : primaryKeyColumns) {
             map.put(column.getName(), column.getValue());
         }
         // 字段
         Column[] columns = row.getColumns();
-        for(int i = 0; i < columns.length; i++) {
-            Column column = columns[i];
+        for (Column column : columns) {
             // 字段名
             String name = column.getName();
             // 字段值
             ColumnValue columnValue = column.getValue();
             // 如果是字符串判断是否是json，把json转换成List<Map<String, Object>>
-            if(columnValue.getType() == ColumnType.STRING) {
+            if (columnValue.getType() == ColumnType.STRING) {
                 String jsonStr = columnValue.asString();
-                if(JSONUtil.isJson(jsonStr)) {
+                if (JSONUtil.isJson(jsonStr)) {
                     map.put(name, gson.fromJson(jsonStr, GsonType.LIST_MAP_WITH_STRING_OBJECT));
+                } else {
+                    map.put(name, columnValue.getValue());
                 }
             } else {
                 map.put(name, columnValue.getValue());

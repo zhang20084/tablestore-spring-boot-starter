@@ -11,6 +11,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.junit.jupiter.api.Test;
 import site.dunhanson.tablestore.spring.boot.constant.GsonType;
+import site.dunhanson.tablestore.spring.boot.entity.Document;
+import site.dunhanson.tablestore.spring.boot.utils.TableStoreUtils;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -43,9 +45,9 @@ public class TablestoreTest {
         SearchResponse response = client.search(searchRequest);
         System.out.println("totalCount:" + response.getTotalCount());
         List<Row> rows = response.getRows();
-        List<Map<String, Object>> list = new ArrayList<>();
-        for(Row row : rows) {
-
+        List<Document> documents = TableStoreUtils.rowsToBeans(rows, Document.class);
+        for(Document document : documents) {
+            System.out.println(document);
         }
     }
 
