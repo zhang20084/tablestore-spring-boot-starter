@@ -12,8 +12,10 @@ import com.google.gson.reflect.TypeToken;
 import org.junit.jupiter.api.Test;
 import site.dunhanson.tablestore.spring.boot.constant.GsonType;
 import site.dunhanson.tablestore.spring.boot.entity.Document;
+import site.dunhanson.tablestore.spring.boot.entity.PageInfo;
 import site.dunhanson.tablestore.spring.boot.utils.TableStoreUtils;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,21 +37,29 @@ public class TablestoreTest {
         searchQuery.setGetTotalCount(true);
 
         // SearchRequest
-        SearchRequest searchRequest = new SearchRequest("document", "document_index", searchQuery);
+        SearchRequest request = new SearchRequest("document", "document_index", searchQuery);
         SearchRequest.ColumnsToGet columnsToGet = new SearchRequest.ColumnsToGet();
         columnsToGet.setReturnAll(true);
-        searchRequest.setColumnsToGet(columnsToGet);
+        request.setColumnsToGet(columnsToGet);
 
-        // search
-        SyncClient client = TestUtils.getSyncClient();
-        SearchResponse response = client.search(searchRequest);
-        System.out.println("totalCount:" + response.getTotalCount());
-        List<Row> rows = response.getRows();
-        List<Document> documents = TableStoreUtils.rowsToBeans(rows, Document.class);
-        for(Document document : documents) {
+        PageInfo<Document> pageInfo = new PageInfo<>(1, 20);
+        search(request, pageInfo, Document.class);
+        for(Document document : pageInfo.getRecords()) {
             System.out.println(document);
         }
     }
 
+    public <T> void search(SearchRequest request, PageInfo<T> pageInfo, Class<T> clazz) {
+        SearchQuery query = request.getSearchQuery();
+        TableStoreUtils.setPageInfoInSearchQuery(query, pageInfo);
+        // client
+        SyncClient client = TestUtils.getSyncClient();
+        // response
+        SearchResponse response = client.search(request);
+        // 获取结果
+        List<T> records = TableStoreUtils.rowsToBeans(response.getRows(), clazz);
+        pageInfo.setRecords(records);
+        pageInfo.setTotal(response.getTotalCount());
+    }
 
 }

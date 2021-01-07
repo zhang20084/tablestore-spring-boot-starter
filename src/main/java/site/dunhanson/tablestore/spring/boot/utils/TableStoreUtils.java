@@ -4,8 +4,11 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.json.JSONUtil;
 import com.alicloud.openservices.tablestore.model.*;
+import com.alicloud.openservices.tablestore.model.search.SearchQuery;
+import com.alicloud.openservices.tablestore.model.search.SearchResponse;
 import com.google.gson.Gson;
 import site.dunhanson.tablestore.spring.boot.constant.GsonType;
+import site.dunhanson.tablestore.spring.boot.entity.PageInfo;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +20,24 @@ import java.util.Map;
  * @author dunhanson
  */
 public class TableStoreUtils {
+
+    /**
+     * 设置分页信息
+     * @param query SearchQuery
+     * @param pageInfo PageInfo分页信息对象
+     * @param <T> 泛型
+     */
+    public static <T> void setPageInfoInSearchQuery(SearchQuery query, PageInfo<T> pageInfo) {
+        query.setLimit(pageInfo.getSize());
+        query.setOffset(pageInfo.getIndex());
+    }
+
+    /*public static <T> PageInfo<T> setPageInfoBySearchResponse(PageInfo<T> pageInfo, SearchResponse response) {
+        pageInfo.setRecords(rowsToBeans(response.getRows(), clazz));
+        pageInfo.setTotal(response.getTotalCount());
+        return pageInfo;
+    }*/
+
     /**
      * rows转换成beans
      * @param rows 行对象集合
