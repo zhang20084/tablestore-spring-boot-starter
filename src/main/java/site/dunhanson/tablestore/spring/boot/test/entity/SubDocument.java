@@ -1,4 +1,4 @@
-package site.dunhanson.tablestore.spring.boot.entity;
+package site.dunhanson.tablestore.spring.boot.test.entity;
 
 import lombok.Data;
 

@@ -3,11 +3,19 @@ package site.dunhanson.tablestore.spring.boot.utils;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.json.JSONUtil;
+import com.alicloud.openservices.tablestore.SyncClient;
 import com.alicloud.openservices.tablestore.model.*;
 import com.alicloud.openservices.tablestore.model.search.SearchQuery;
+import com.alicloud.openservices.tablestore.model.search.SearchRequest;
+import com.alicloud.openservices.tablestore.model.search.SearchResponse;
+import com.alicloud.openservices.tablestore.model.search.query.Query;
 import com.google.gson.Gson;
+import site.dunhanson.tablestore.spring.boot.annotation.Table;
 import site.dunhanson.tablestore.spring.boot.constant.GsonType;
 import site.dunhanson.tablestore.spring.boot.entity.PageInfo;
+import site.dunhanson.tablestore.spring.boot.test.entity.Document;
+
+import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -21,10 +29,95 @@ import java.util.Map;
  * @author dunhanson
  */
 public class TableStoreUtils {
+    /**
+     * SyncClient
+     */
+    public static SyncClient syncClient;
 
-    public static <T> Class<T> getClass(T entity) {
-        Type type = ((ParameterizedType)entity.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-        return (Class<T>) type.getClass();
+    /**
+     * 查询
+     * @param request SearchRequest
+     * @param pageInfo PageInfo
+     * @param <T> 泛型
+     * @return PageInfo
+     */
+    public static <T> PageInfo<T> search(PageInfo<T> pageInfo, SearchQuery searchQuery) {
+        // Class
+        Class<T> clazz = TableStoreUtils.getClass(pageInfo);
+        // SearchRequest
+        SearchRequest request = TableStoreUtils.getDefaultSearchRequest(clazz, searchQuery);
+        // 设置分页信息
+        TableStoreUtils.setPageInfoInSearchQuery(request.getSearchQuery(), pageInfo);
+        // response
+        SearchResponse response = syncClient.search(request);
+        // 获取结果
+        List<T> records = TableStoreUtils.rowsToBeans(response.getRows(), clazz);
+        // 设置返回记录
+        pageInfo.setRecords(records);
+        // 设置总记录数
+        pageInfo.setTotal(response.getTotalCount());
+        // 返回PageInfo
+        return pageInfo;
+    }
+
+    /**
+     * 搜索
+     * @param pageInfo 分页信息
+     * @param query 查询对象
+     * @param <T> 泛型
+     * @return 分页信息
+     */
+    public static <T> PageInfo<T> search(PageInfo<T> pageInfo, Query query) {
+        return search(pageInfo, getDefaultSearchQuery(query));
+    }
+
+    /**
+     * 获取默认的SearchQuery
+     * @param query Query
+     * @return SearchQuery
+     */
+    public static SearchQuery getDefaultSearchQuery(Query query) {
+        SearchQuery searchQuery = new SearchQuery();
+        searchQuery.setQuery(query);
+        searchQuery.setGetTotalCount(true);
+        return searchQuery;
+    }
+
+    /**
+     * 获取默认的SearchRequest
+     * @param clazz Class
+     * @param searchQuery SearchQuery
+     * @param <T> 泛型
+     * @return SearchRequest
+     */
+    public static <T> SearchRequest getDefaultSearchRequest(Class<T> clazz, SearchQuery searchQuery) {
+        Table table = clazz.getAnnotation(Table.class);
+        if(table == null) {
+            throw new NullPointerException("can't found Table annotation");
+        }
+        // SearchRequest
+        SearchRequest searchRequest = new SearchRequest(table.tableName(), table.indexName(), searchQuery);
+        // 设置返回所有列
+        SearchRequest.ColumnsToGet columnsToGet = new SearchRequest.ColumnsToGet();
+        columnsToGet.setReturnAll(true);
+        searchRequest.setColumnsToGet(columnsToGet);
+        return searchRequest;
+    }
+
+    /**
+     * 获取PageInfo泛型Class
+     * @param pageInfo
+     * @param <T>
+     * @return 泛型Class
+     */
+    public static <T> Class<T> getClass(PageInfo<T> pageInfo) {
+        Type type = ((ParameterizedType)pageInfo.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        try {
+            return (Class<T>) Class.forName(type.getTypeName());
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 
