@@ -36,20 +36,21 @@ public class TableStoreUtils {
 
     /**
      * 查询
-     * @param request SearchRequest
      * @param pageInfo PageInfo
+     * @param searchQuery SearchQuery
+     * @param columnsToGet SearchRequest.ColumnsToGet
      * @param <T> 泛型
      * @return PageInfo
      */
-    public static <T> PageInfo<T> search(PageInfo<T> pageInfo, SearchQuery searchQuery) {
+    public static <T> PageInfo<T> search(PageInfo<T> pageInfo, SearchQuery searchQuery, SearchRequest.ColumnsToGet columnsToGet) {
         // Class
         Class<T> clazz = TableStoreUtils.getClass(pageInfo);
         // SearchRequest
-        SearchRequest request = TableStoreUtils.getDefaultSearchRequest(clazz, searchQuery);
+        SearchRequest searchRequest = (columnsToGet == null ? getSearchRequest(clazz, searchQuery) : getSearchRequest(clazz, searchQuery, columnsToGet));
         // 设置分页信息
-        TableStoreUtils.setPageInfoInSearchQuery(request.getSearchQuery(), pageInfo);
+        TableStoreUtils.setPageInfoInSearchQuery(searchRequest.getSearchQuery(), pageInfo);
         // response
-        SearchResponse response = syncClient.search(request);
+        SearchResponse response = syncClient.search(searchRequest);
         // 获取结果
         List<T> records = TableStoreUtils.rowsToBeans(response.getRows(), clazz);
         // 设置返回记录
@@ -61,14 +62,38 @@ public class TableStoreUtils {
     }
 
     /**
+     * 查询
+     * @param pageInfo PageInfo
+     * @param searchQuery SearchQuery
+     * @param <T> 泛型
+     * @return PageInfo
+     */
+    public static <T> PageInfo<T> search(PageInfo<T> pageInfo, SearchQuery searchQuery) {
+        return search(pageInfo, searchQuery, null);
+    }
+
+    /**
      * 搜索
      * @param pageInfo 分页信息
      * @param query 查询对象
      * @param <T> 泛型
-     * @return 分页信息
+     * @return PageInfo
      */
     public static <T> PageInfo<T> search(PageInfo<T> pageInfo, Query query) {
-        return search(pageInfo, getDefaultSearchQuery(query));
+        return search(pageInfo, getSearchQuery(query));
+    }
+
+    /**
+     * 搜索
+     * @param pageInfo PageInfo
+     * @param query Query
+     * @param columnsToGet SearchRequest.ColumnsToGet
+     * @param <T> 泛型
+     * @return PageInfo
+     */
+    public static <T> PageInfo<T> search(PageInfo<T> pageInfo, Query query, SearchRequest.ColumnsToGet columnsToGet) {
+        SearchQuery searchQuery = getSearchQuery(query);
+        return search(pageInfo, searchQuery, columnsToGet);
     }
 
     /**
@@ -76,7 +101,7 @@ public class TableStoreUtils {
      * @param query Query
      * @return SearchQuery
      */
-    public static SearchQuery getDefaultSearchQuery(Query query) {
+    public static SearchQuery getSearchQuery(Query query) {
         SearchQuery searchQuery = new SearchQuery();
         searchQuery.setQuery(query);
         searchQuery.setGetTotalCount(true);
@@ -90,16 +115,29 @@ public class TableStoreUtils {
      * @param <T> 泛型
      * @return SearchRequest
      */
-    public static <T> SearchRequest getDefaultSearchRequest(Class<T> clazz, SearchQuery searchQuery) {
+    public static <T> SearchRequest getSearchRequest(Class<T> clazz, SearchQuery searchQuery) {
+        // 设置返回所有列
+        SearchRequest.ColumnsToGet columnsToGet = new SearchRequest.ColumnsToGet();
+        columnsToGet.setReturnAll(true);
+        return getSearchRequest(clazz, searchQuery, columnsToGet);
+    }
+
+    /**
+     * 获取SearchRequest
+     * @param clazz 类
+     * @param searchQuery SearchQuery
+     * @param columnsToGet SearchRequest.ColumnsToGet
+     * @param <T> 泛型
+     * @return SearchRequest
+     */
+    public static <T> SearchRequest getSearchRequest(Class<T> clazz, SearchQuery searchQuery, SearchRequest.ColumnsToGet columnsToGet) {
         Table table = clazz.getAnnotation(Table.class);
         if(table == null) {
             throw new NullPointerException("can't found Table annotation");
         }
         // SearchRequest
         SearchRequest searchRequest = new SearchRequest(table.tableName(), table.indexName(), searchQuery);
-        // 设置返回所有列
-        SearchRequest.ColumnsToGet columnsToGet = new SearchRequest.ColumnsToGet();
-        columnsToGet.setReturnAll(true);
+        // 设置返回列
         searchRequest.setColumnsToGet(columnsToGet);
         return searchRequest;
     }
