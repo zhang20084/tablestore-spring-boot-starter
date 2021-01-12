@@ -13,9 +13,6 @@ import com.google.gson.Gson;
 import site.dunhanson.tablestore.spring.boot.annotation.Table;
 import site.dunhanson.tablestore.spring.boot.constant.GsonType;
 import site.dunhanson.tablestore.spring.boot.entity.PageInfo;
-import site.dunhanson.tablestore.spring.boot.test.entity.Document;
-
-import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -97,32 +94,6 @@ public class TableStoreUtils {
     }
 
     /**
-     * 获取默认的SearchQuery
-     * @param query Query
-     * @return SearchQuery
-     */
-    public static SearchQuery getSearchQuery(Query query) {
-        SearchQuery searchQuery = new SearchQuery();
-        searchQuery.setQuery(query);
-        searchQuery.setGetTotalCount(true);
-        return searchQuery;
-    }
-
-    /**
-     * 获取默认的SearchRequest
-     * @param clazz Class
-     * @param searchQuery SearchQuery
-     * @param <T> 泛型
-     * @return SearchRequest
-     */
-    public static <T> SearchRequest getSearchRequest(Class<T> clazz, SearchQuery searchQuery) {
-        // 设置返回所有列
-        SearchRequest.ColumnsToGet columnsToGet = new SearchRequest.ColumnsToGet();
-        columnsToGet.setReturnAll(true);
-        return getSearchRequest(clazz, searchQuery, columnsToGet);
-    }
-
-    /**
      * 获取SearchRequest
      * @param clazz 类
      * @param searchQuery SearchQuery
@@ -140,6 +111,32 @@ public class TableStoreUtils {
         // 设置返回列
         searchRequest.setColumnsToGet(columnsToGet);
         return searchRequest;
+    }
+
+    /**
+     * 获取默认的SearchRequest
+     * @param clazz Class
+     * @param searchQuery SearchQuery
+     * @param <T> 泛型
+     * @return SearchRequest
+     */
+    public static <T> SearchRequest getSearchRequest(Class<T> clazz, SearchQuery searchQuery) {
+        // 设置返回所有列
+        SearchRequest.ColumnsToGet columnsToGet = new SearchRequest.ColumnsToGet();
+        columnsToGet.setReturnAll(true);
+        return getSearchRequest(clazz, searchQuery, columnsToGet);
+    }
+
+    /**
+     * 获取默认的SearchQuery
+     * @param query Query
+     * @return SearchQuery
+     */
+    public static SearchQuery getSearchQuery(Query query) {
+        SearchQuery searchQuery = new SearchQuery();
+        searchQuery.setQuery(query);
+        searchQuery.setGetTotalCount(true);
+        return searchQuery;
     }
 
     /**
