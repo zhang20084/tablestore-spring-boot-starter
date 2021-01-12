@@ -74,17 +74,6 @@ public class TableStoreUtils {
 
     /**
      * 搜索
-     * @param pageInfo 分页信息
-     * @param query 查询对象
-     * @param <T> 泛型
-     * @return PageInfo
-     */
-    public static <T> PageInfo<T> search(PageInfo<T> pageInfo, Query query) {
-        return search(pageInfo, getSearchQuery(query));
-    }
-
-    /**
-     * 搜索
      * @param pageInfo PageInfo
      * @param query Query
      * @param columnsToGet SearchRequest.ColumnsToGet
@@ -94,6 +83,17 @@ public class TableStoreUtils {
     public static <T> PageInfo<T> search(PageInfo<T> pageInfo, Query query, SearchRequest.ColumnsToGet columnsToGet) {
         SearchQuery searchQuery = getSearchQuery(query);
         return search(pageInfo, searchQuery, columnsToGet);
+    }
+
+    /**
+     * 搜索
+     * @param pageInfo 分页信息
+     * @param query 查询对象
+     * @param <T> 泛型
+     * @return PageInfo
+     */
+    public static <T> PageInfo<T> search(PageInfo<T> pageInfo, Query query) {
+        return search(pageInfo, getSearchQuery(query));
     }
 
     /**
