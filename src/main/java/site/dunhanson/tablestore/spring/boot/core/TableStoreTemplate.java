@@ -1,4 +1,4 @@
-package site.dunhanson.tablestore.spring.boot.utils;
+package site.dunhanson.tablestore.spring.boot.core;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
@@ -10,9 +10,11 @@ import com.alicloud.openservices.tablestore.model.search.SearchRequest;
 import com.alicloud.openservices.tablestore.model.search.SearchResponse;
 import com.alicloud.openservices.tablestore.model.search.query.Query;
 import com.google.gson.Gson;
+import org.springframework.stereotype.Component;
 import site.dunhanson.tablestore.spring.boot.annotation.Table;
 import site.dunhanson.tablestore.spring.boot.constant.GsonType;
 import site.dunhanson.tablestore.spring.boot.entity.PageInfo;
+import javax.annotation.Resource;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -21,15 +23,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * TableStore工具类
- * 2020-01-07
+ * TableStoreTemplate
+ * 2020-01-13
  * @author dunhanson
  */
-public class TableStoreUtils {
-    /**
-     * SyncClient
-     */
-    public static SyncClient syncClient;
+@Component
+public class TableStoreTemplate {
+    @Resource
+    private SyncClient syncClient;
 
     /**
      * 查询
@@ -39,17 +40,17 @@ public class TableStoreUtils {
      * @param <T> 泛型
      * @return PageInfo
      */
-    public static <T> PageInfo<T> search(PageInfo<T> pageInfo, SearchQuery searchQuery, SearchRequest.ColumnsToGet columnsToGet) {
+    public <T> PageInfo<T> search(PageInfo<T> pageInfo, SearchQuery searchQuery, SearchRequest.ColumnsToGet columnsToGet) {
         // Class
-        Class<T> clazz = TableStoreUtils.getClass(pageInfo);
+        Class<T> clazz = getClass(pageInfo);
         // SearchRequest
         SearchRequest searchRequest = (columnsToGet == null ? getSearchRequest(clazz, searchQuery) : getSearchRequest(clazz, searchQuery, columnsToGet));
         // 设置分页信息
-        TableStoreUtils.setPageInfoInSearchQuery(searchRequest.getSearchQuery(), pageInfo);
+        setPageInfoInSearchQuery(searchRequest.getSearchQuery(), pageInfo);
         // response
         SearchResponse response = syncClient.search(searchRequest);
         // 获取结果
-        List<T> records = TableStoreUtils.rowsToBeans(response.getRows(), clazz);
+        List<T> records = rowsToBeans(response.getRows(), clazz);
         // 设置返回记录
         pageInfo.setRecords(records);
         // 设置总记录数
@@ -65,7 +66,7 @@ public class TableStoreUtils {
      * @param <T> 泛型
      * @return PageInfo
      */
-    public static <T> PageInfo<T> search(PageInfo<T> pageInfo, SearchQuery searchQuery) {
+    public <T> PageInfo<T> search(PageInfo<T> pageInfo, SearchQuery searchQuery) {
         return search(pageInfo, searchQuery, null);
     }
 
@@ -77,7 +78,7 @@ public class TableStoreUtils {
      * @param <T> 泛型
      * @return PageInfo
      */
-    public static <T> PageInfo<T> search(PageInfo<T> pageInfo, Query query, SearchRequest.ColumnsToGet columnsToGet) {
+    public <T> PageInfo<T> search(PageInfo<T> pageInfo, Query query, SearchRequest.ColumnsToGet columnsToGet) {
         SearchQuery searchQuery = getSearchQuery(query);
         return search(pageInfo, searchQuery, columnsToGet);
     }
@@ -89,7 +90,7 @@ public class TableStoreUtils {
      * @param <T> 泛型
      * @return PageInfo
      */
-    public static <T> PageInfo<T> search(PageInfo<T> pageInfo, Query query) {
+    public <T> PageInfo<T> search(PageInfo<T> pageInfo, Query query) {
         return search(pageInfo, getSearchQuery(query));
     }
 
@@ -101,7 +102,7 @@ public class TableStoreUtils {
      * @param <T> 泛型
      * @return SearchRequest
      */
-    public static <T> SearchRequest getSearchRequest(Class<T> clazz, SearchQuery searchQuery, SearchRequest.ColumnsToGet columnsToGet) {
+    public <T> SearchRequest getSearchRequest(Class<T> clazz, SearchQuery searchQuery, SearchRequest.ColumnsToGet columnsToGet) {
         Table table = clazz.getAnnotation(Table.class);
         if(table == null) {
             throw new NullPointerException("can't found Table annotation");
@@ -120,7 +121,7 @@ public class TableStoreUtils {
      * @param <T> 泛型
      * @return SearchRequest
      */
-    public static <T> SearchRequest getSearchRequest(Class<T> clazz, SearchQuery searchQuery) {
+    public <T> SearchRequest getSearchRequest(Class<T> clazz, SearchQuery searchQuery) {
         // 设置返回所有列
         SearchRequest.ColumnsToGet columnsToGet = new SearchRequest.ColumnsToGet();
         columnsToGet.setReturnAll(true);
@@ -132,7 +133,7 @@ public class TableStoreUtils {
      * @param query Query
      * @return SearchQuery
      */
-    public static SearchQuery getSearchQuery(Query query) {
+    public SearchQuery getSearchQuery(Query query) {
         SearchQuery searchQuery = new SearchQuery();
         searchQuery.setQuery(query);
         searchQuery.setGetTotalCount(true);
@@ -141,11 +142,11 @@ public class TableStoreUtils {
 
     /**
      * 获取PageInfo泛型Class
-     * @param pageInfo
-     * @param <T>
+     * @param pageInfo PageInfo
+     * @param <T> 泛型
      * @return 泛型Class
      */
-    public static <T> Class<T> getClass(PageInfo<T> pageInfo) {
+    public <T> Class<T> getClass(PageInfo<T> pageInfo) {
         Type type = ((ParameterizedType)pageInfo.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
         try {
             return (Class<T>) Class.forName(type.getTypeName());
@@ -162,7 +163,7 @@ public class TableStoreUtils {
      * @param pageInfo PageInfo分页信息对象
      * @param <T> 泛型
      */
-    public static <T> void setPageInfoInSearchQuery(SearchQuery query, PageInfo<T> pageInfo) {
+    public <T> void setPageInfoInSearchQuery(SearchQuery query, PageInfo<T> pageInfo) {
         query.setLimit(pageInfo.getSize());
         query.setOffset(pageInfo.getIndex());
     }
@@ -174,7 +175,7 @@ public class TableStoreUtils {
      * @param <T> 泛型
      * @return 对象List集合
      */
-    public static <T> List<T> rowsToBeans(List<Row> rows, Class<T> clazz) {
+    public <T> List<T> rowsToBeans(List<Row> rows, Class<T> clazz) {
         List<T> list = new ArrayList<>();
         if(rows != null) {
             for(Row row : rows) {
@@ -191,7 +192,7 @@ public class TableStoreUtils {
      * @param <T> 泛型
      * @return bean
      */
-    public static <T> T rowToBean(Row row, Class<T> clazz) {
+    public <T> T rowToBean(Row row, Class<T> clazz) {
         return BeanUtil.mapToBean(rowToMap(row), clazz, true, CopyOptions.create());
     }
 
@@ -202,7 +203,7 @@ public class TableStoreUtils {
      * @param row 行对象
      * @return map对象
      */
-    public static Map<String, Object> rowToMap(Row row) {
+    public Map<String, Object> rowToMap(Row row) {
         Map<String, Object> map = new HashMap<>();
         Gson gson = new Gson();
         // 主键
@@ -232,4 +233,5 @@ public class TableStoreUtils {
         }
         return map;
     }
+
 }

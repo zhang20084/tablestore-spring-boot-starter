@@ -1,1 +1,6 @@
-debug: false
+aliyun:
+  tablestore:
+    endPoint:
+    accessKeyId:
+    accessKeySecret:
+    instanceName:

@@ -2,8 +2,10 @@ package site.dunhanson.tablestore.spring.boot.config.properties;
 
 import com.alicloud.openservices.tablestore.model.RetryStrategy;
 import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Data
+@ConfigurationProperties(prefix = "tablestore")
 public class ClientConfigurationProperties {
     /**
      * 设置HttpAsyncClient的IOReactor的线程数(因为采用的是异步IO，所以不需要配置大量线程，每个线程都能提供大量并发)。

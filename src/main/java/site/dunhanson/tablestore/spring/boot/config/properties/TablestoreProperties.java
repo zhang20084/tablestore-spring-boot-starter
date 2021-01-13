@@ -8,7 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * Tablestore配置
  */
 @Data
-@ConfigurationProperties(prefix = "tablestore")
+@ConfigurationProperties(prefix = "aliyun.tablestore")
 public class TablestoreProperties {
     /**
      * TableStore服务的endpoint
@@ -26,4 +26,8 @@ public class TablestoreProperties {
      * 访问TableStore服务的实例名称
      */
     private String instanceName;
+    /**
+     * ClientConfiguration
+     */
+    private ClientConfigurationProperties clientConfiguration;
 }
