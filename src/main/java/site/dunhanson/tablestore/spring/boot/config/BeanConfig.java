@@ -1,6 +1,7 @@
 package site.dunhanson.tablestore.spring.boot.config;
 
-import com.alicloud.openservices.tablestore.AsyncClient;
+import cn.hutool.core.bean.BeanUtil;
+import com.alicloud.openservices.tablestore.ClientConfiguration;
 import com.alicloud.openservices.tablestore.SyncClient;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -25,22 +26,17 @@ public class BeanConfig {
     @Bean
     public SyncClient syncClient() {
         TablestoreProperties tableStore = aliyunProperties.getTableStore();
-        return new SyncClient(tableStore.getEndPoint(),
-                tableStore.getAccessKeyId(),
-                tableStore.getAccessKeySecret(),
-                tableStore.getInstanceName());
+        SyncClient syncClient;
+        if(tableStore.getClientConfiguration() != null) {
+            ClientConfiguration configuration = new ClientConfiguration();
+            BeanUtil.copyProperties(tableStore.getClientConfiguration(), configuration);
+            syncClient = new SyncClient(tableStore.getEndPoint(), tableStore.getAccessKeyId(),
+                    tableStore.getAccessKeySecret(), tableStore.getInstanceName(), configuration);
+        } else {
+            syncClient = new SyncClient(tableStore.getEndPoint(), tableStore.getAccessKeyId(),
+                    tableStore.getAccessKeySecret(), tableStore.getInstanceName());
+        }
+        return syncClient;
     }
 
-    /**
-     * 异步实例
-     * @return
-     */
-    @Bean
-    public AsyncClient asyncClient() {
-        TablestoreProperties tableStore = aliyunProperties.getTableStore();
-        return new AsyncClient(tableStore.getEndPoint(),
-                tableStore.getAccessKeyId(),
-                tableStore.getAccessKeySecret(),
-                tableStore.getInstanceName());
-    }
 }

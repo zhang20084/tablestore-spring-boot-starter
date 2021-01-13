@@ -1,6 +1,5 @@
 package site.dunhanson.tablestore.spring.boot;
 
-import com.alicloud.openservices.tablestore.SyncClient;
 import com.alicloud.openservices.tablestore.model.search.query.MatchQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -10,7 +9,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import site.dunhanson.tablestore.spring.boot.core.TableStoreTemplate;
 import site.dunhanson.tablestore.spring.boot.entity.PageInfo;
 import site.dunhanson.tablestore.spring.boot.test.entity.Document;
-
 import javax.annotation.Resource;
 
 @Slf4j
