@@ -1,6 +1,7 @@
 package site.dunhanson.tablestore.spring.boot.test.entity;
 
 import lombok.Data;
+import site.dunhanson.tablestore.spring.boot.annotation.PrimaryKey;
 import site.dunhanson.tablestore.spring.boot.annotation.Table;
 
 import java.util.List;
@@ -8,7 +9,9 @@ import java.util.List;
 @Data
 @Table(tableName = "document", indexName = "document_index")
 public class Document {
+    @PrimaryKey(name = "partitionkey")
     private Long partitionkey;
+    @PrimaryKey(name = "docid")
     private Long docid;
     private Long status = 1L;
     private String pageTime;

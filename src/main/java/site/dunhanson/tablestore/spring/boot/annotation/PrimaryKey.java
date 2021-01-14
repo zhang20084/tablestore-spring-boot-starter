@@ -6,22 +6,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 表名
+ * 主键
  * 2020-01-14
  * @author dunhanson
  */
-@Target(ElementType.TYPE)
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Table {
+public @interface PrimaryKey {
     /**
-     * 表名
-     * @return 表名
+     * 主键名称
+     * @return
      */
-    String tableName() default "";
-
-    /**
-     * 索引名称
-     * @return 索引名称
-     */
-    String indexName() default "";
+    String name() default "";
 }
