@@ -1,5 +1,7 @@
 package site.dunhanson.tablestore.spring.boot;
 
+import com.alicloud.openservices.tablestore.model.PutRowRequest;
+import com.alicloud.openservices.tablestore.model.RowPutChange;
 import com.alicloud.openservices.tablestore.model.search.query.MatchQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -10,6 +12,7 @@ import site.dunhanson.tablestore.spring.boot.core.TableStoreTemplate;
 import site.dunhanson.tablestore.spring.boot.entity.PageInfo;
 import site.dunhanson.tablestore.spring.boot.test.entity.Document;
 import javax.annotation.Resource;
+import javax.swing.text.html.parser.Entity;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -30,5 +33,7 @@ public class SpringBootStarterApplicationTests {
             System.out.println(document);
         }
     }
+
+
 
 }
