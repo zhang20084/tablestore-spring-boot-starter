@@ -54,7 +54,7 @@ public class TableStoreUtils {
         PrimaryKeyBuilder primaryKeyBuilder = PrimaryKeyBuilder.createPrimaryKeyBuilder();
         for(String key : primaryKeyMap.keySet()) {
             map.remove(key);
-            primaryKeyBuilder.addPrimaryKeyColumn(key, PrimaryKeyValue.fromColumn(ColumnValue))
+            primaryKeyBuilder.addPrimaryKeyColumn(key, PrimaryKeyValue.fromColumn(ColumnValue.fromString(key)));
         }
         return null;
     }
