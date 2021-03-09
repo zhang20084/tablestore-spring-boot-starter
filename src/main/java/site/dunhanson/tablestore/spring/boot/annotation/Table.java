@@ -23,5 +23,11 @@ public @interface Table {
      * 索引名称
      * @return 索引名称
      */
-    String indexName() default "";
+    String[] indexName() default "";
+
+    /**
+     * 查询索引下标
+     * @return
+     */
+    int indexNameIndex() default 0;
 }

@@ -107,8 +107,10 @@ public class TableStoreTemplate {
         if(table == null) {
             throw new NullPointerException("can't found Table annotation");
         }
+        // 索引名称下标
+        int indexNameIndex = table.indexNameIndex();
         // SearchRequest
-        SearchRequest searchRequest = new SearchRequest(table.tableName(), table.indexName(), searchQuery);
+        SearchRequest searchRequest = new SearchRequest(table.tableName(), table.indexName()[indexNameIndex], searchQuery);
         // 设置返回列
         searchRequest.setColumnsToGet(columnsToGet);
         return searchRequest;
@@ -233,5 +235,6 @@ public class TableStoreTemplate {
         }
         return map;
     }
+
 
 }

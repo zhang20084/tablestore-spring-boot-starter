@@ -3,11 +3,10 @@ package site.dunhanson.tablestore.spring.boot.test.entity;
 import lombok.Data;
 import site.dunhanson.tablestore.spring.boot.annotation.PrimaryKey;
 import site.dunhanson.tablestore.spring.boot.annotation.Table;
-
 import java.util.List;
 
 @Data
-@Table(tableName = "document", indexName = "document_index")
+@Table(tableName = "document", indexName = {"document_index","test"})
 public class Document {
     @PrimaryKey(name = "partitionkey")
     private Long partitionkey;
